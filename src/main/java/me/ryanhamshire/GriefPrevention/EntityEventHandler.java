@@ -149,7 +149,8 @@ public class EntityEventHandler implements Listener
 		}
 		else if(GriefPrevention.instance.config_claims_worldModes.get(event.getBlock().getWorld()) != ClaimsMode.Disabled)
         {
-            if (event.getEntityType() == EntityType.WITHER)
+			// Exempt Withers from block protection in the nether (even in claims :O)
+            if (event.getEntityType() == EntityType.WITHER && event.getEntity().getWorld().getEnvironment() != Environment.NETHER)
             {
                 Claim claim = this.dataStore.getClaimAt(event.getBlock().getLocation(), false, null);
                 if (claim == null || !claim.areExplosivesAllowed || !GriefPrevention.instance.config_blockClaimExplosions)
@@ -312,6 +313,10 @@ public class EntityEventHandler implements Listener
         World world = location.getWorld();
         
         if(!GriefPrevention.instance.claimsEnabledForWorld(world)) return;
+
+        // Exempt Withers from explosion protection in the nether (even in claims :O)
+        boolean isWither = (entity != null && entity.getType() == EntityType.WITHER);
+        if (isWither && entity.getWorld().getEnvironment() == Environment.NETHER) return;
         
         //FEATURE: explosions don't destroy surface blocks by default
         boolean isCreeper = (entity != null && entity.getType() == EntityType.CREEPER);
